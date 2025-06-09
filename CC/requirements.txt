@@ -1,0 +1,23 @@
+fastapi
+uvicorn
+pydantic
+mysql-connector-python
+python-dotenv
+flask
+
+
+# CREATE DATABASE code_compiler;
+
+# USE code_compiler;
+
+# CREATE TABLE code_submissions (
+#     id INT AUTO_INCREMENT PRIMARY KEY,
+#     language VARCHAR(50),
+#     code TEXT,
+#     input_data TEXT,
+#     output TEXT,
+#     errors TEXT,
+#     execution_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+# );
+# uvicorn app.main:app --reload
+# .venv\Scripts\Activate
