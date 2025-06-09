@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Highlight, themes } from "prism-react-renderer";
 import Editor from "react-simple-code-editor";
-
+import Sidebar from "@/components/Sidebar";
 export default function Home() {
   const [code, setCode] = useState("print('Hello')");
   const [inputData, setInputData] = useState("");
@@ -45,7 +45,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0e0e0e] text-[#00ffb3] relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#00ffb3]/20 via-[#0e0e0e] to-black" />
-
+      <Sidebar />
       <div className="relative z-10 container mx-auto p-8 pb-20 min-h-screen">
         <div className="mb-8">
           <iframe
