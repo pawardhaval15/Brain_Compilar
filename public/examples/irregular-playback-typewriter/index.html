@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Typewriter</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #0e0e0e;
+      color: #00ffb3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Fira Code', monospace;
+      margin: 0;
+    }
+
+    .playground {
+      text-align: center;
+    }
+
+    .typewriter-line {
+      display: inline-block;
+      white-space: pre;
+      font-size: 1.5rem;
+      margin: 8px 0;
+    }
+
+    .cursor {
+      border-right: 2px solid #00ffb3;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      from, to { border-color: transparent; }
+      50% { border-color: #00ffb3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="playground">
+    <div id="line1" class="typewriter-line cursor"></div>
+    <br />
+    <div id="line2" class="typewriter-line"></div>
+  </div>
+
+  <script>
+    const text1 = "BrainCompiler AI - Where Code Meets Intelligence";
+    const text2 = "Write, Execute, and Debug Python code in real-time...";
+    const speed = 60;
+
+    function typeText(element, text, callback) {
+      let i = 0;
+      function type() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else if (callback) {
+          callback();
+        }
+      }
+      type();
+    }
+
+    const line1 = document.getElementById("line1");
+    const line2 = document.getElementById("line2");
+
+    typeText(line1, text1, () => {
+      // Move blinking cursor from line1 to line2
+      line1.classList.remove("cursor");
+      line2.classList.add("cursor");
+
+      setTimeout(() => {
+        typeText(line2, text2);
+      }, 300);
+    });
+  </script>
+</body>
+</html>
