@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Highlight, themes } from "prism-react-renderer";
@@ -11,6 +11,41 @@ export default function Home() {
   const [inputData, setInputData] = useState("");
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
+  const editorRef = useRef(null);
+
+  // Enhanced code change handler with better paste support
+  const handleCodeChange = useCallback((newCode) => {
+    setCode(newCode);
+  }, []);
+
+  // Handle paste events specifically
+  const handlePaste = useCallback((e) => {
+    // Let the default paste behavior work, but ensure proper formatting
+    setTimeout(() => {
+      if (editorRef.current) {
+        const textarea = editorRef.current.querySelector('textarea');
+        if (textarea) {
+          // Ensure cursor is visible after paste
+          textarea.scrollIntoView({ block: 'nearest' });
+        }
+      }
+    }, 0);
+  }, []);
+
+  // Copy code to clipboard function
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  // Clear code function
+  const clearCode = () => {
+    setCode("");
+  };
 
   const runCode = async () => {
     setLoading(true);
@@ -82,17 +117,43 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row gap-8 min-h-[600px]">
             {/* Code Section */}
             <div className="flex-1 space-y-4">
-              <label className="text-lg font-semibold text-[#00ffb3]">Write Python Code:</label>
-              <div className="flex h-[300px] md:h-[400px] lg:h-[60%] rounded-lg bg-[#1a1a1a] border border-[#00ffb3]/30 overflow-hidden font-mono text-sm">
-                <div className="bg-[#1f1f1f] text-[#777] px-4 py-4 text-right select-none overflow-hidden">
+              <div className="flex items-center justify-between">
+                <label className="text-lg font-semibold text-[#00ffb3]">Write Code:</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={copyCode}
+                    className="px-3 py-1 text-xs bg-[#00ffb3]/20 text-[#00ffb3] rounded border border-[#00ffb3]/30 hover:bg-[#00ffb3]/30 transition-colors"
+                    title="Copy code to clipboard"
+                  >
+                    Copy
+                  </button>
+                  <button
+                    onClick={clearCode}
+                    className="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded border border-red-500/30 hover:bg-red-500/30 transition-colors"
+                    title="Clear code"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+              
+              <div 
+                ref={editorRef}
+                className="flex h-[300px] md:h-[400px] lg:h-[60%] rounded-lg bg-[#1a1a1a] border border-[#00ffb3]/30 overflow-hidden font-mono text-sm relative"
+                onPaste={handlePaste}
+              >
+                {/* Line numbers */}
+                <div className="bg-[#1f1f1f] text-[#777] px-4 py-4 text-right select-none overflow-hidden min-w-[50px] flex-shrink-0">
                   {code.split("\n").map((_, i) => (
-                    <div key={i} className="h-5 leading-5">{i + 1}</div>
+                    <div key={i} className="h-5 leading-5 text-xs">{i + 1}</div>
                   ))}
                 </div>
-                <div className="flex-1 overflow-auto">
+                
+                {/* Editor */}
+                <div className="flex-1 overflow-hidden relative">
                   <Editor
                     value={code}
-                    onValueChange={setCode}
+                    onValueChange={handleCodeChange}
                     highlight={code => (
                       <Highlight code={code} language="python" theme={themes.vsDark}>
                         {({ tokens, getLineProps, getTokenProps }) => (
@@ -109,13 +170,36 @@ export default function Home() {
                       </Highlight>
                     )}
                     padding={16}
+                    textareaId="code-editor"
+                    className="h-full"
                     style={{
-                      fontFamily: '"Fira code", "Fira Mono", monospace',
+                      fontFamily: '"Fira Code", "JetBrains Mono", "Monaco", "Consolas", monospace',
                       fontSize: 14,
                       backgroundColor: "#1a1a1a",
                       color: "white",
                       height: "100%",
-                      overflowY: "auto",
+                      overflow: "auto",
+                      lineHeight: "20px",
+                      tabSize: 4,
+                    }}
+                    // Enhanced textarea props for better copy/paste experience
+                    textareaProps={{
+                      spellCheck: false,
+                      autoComplete: "off",
+                      autoCorrect: "off",
+                      autoCapitalize: "off",
+                      'data-gramm': "false", // Disable Grammarly
+                      style: {
+                        outline: "none",
+                        resize: "none",
+                        fontFamily: '"Fira Code", "JetBrains Mono", "Monaco", "Consolas", monospace',
+                        fontSize: 14,
+                        lineHeight: "20px",
+                        tabSize: 4,
+                        whiteSpace: "pre",
+                        wordWrap: "normal",
+                        overflowWrap: "normal",
+                      }
                     }}
                   />
                 </div>
@@ -123,29 +207,48 @@ export default function Home() {
 
               <label className="text-lg font-semibold text-[#00ffb3]">Input (optional):</label>
               <textarea
-                className="w-full h-32 md:h-40 p-4 rounded-lg bg-[#1a1a1a] border border-[#00ffb3]/30 focus:border-[#00ffb3] focus:ring-2 focus:ring-[#00ffb3]/40 text-white"
+                className="w-full h-32 md:h-40 p-4 rounded-lg bg-[#1a1a1a] border border-[#00ffb3]/30 focus:border-[#00ffb3] focus:ring-2 focus:ring-[#00ffb3]/40 text-white font-mono text-sm resize-none"
                 value={inputData}
                 onChange={(e) => setInputData(e.target.value)}
                 placeholder="Enter input for your code (if any)..."
+                spellCheck={false}
+                autoComplete="off"
+                style={{
+                  fontFamily: '"Fira Code", "JetBrains Mono", "Monaco", "Consolas", monospace',
+                  lineHeight: "20px",
+                }}
               />
 
-              <button
-                onClick={runCode}
-                disabled={loading}
-                className="w-full bg-[#00ffb3] text-black font-bold px-6 py-3 rounded-lg hover:bg-[#00e6a6] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? "Running..." : "Run Code"}
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={runCode}
+                  disabled={loading}
+                  className="flex-1 bg-[#00ffb3] text-black font-bold px-6 py-3 rounded-lg hover:bg-[#00e6a6] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Running..." : "Run Code"}
+                </button>
+              </div>
             </div>
 
             {/* Output Section */}
             <div className="flex-1 space-y-4">
-              <label className="text-lg font-semibold text-[#00ffb3]">Output:</label>
-              <pre className="min-h-[200px] lg:h-[calc(100%-40px)] bg-[#1a1a1a] p-6 rounded-lg border border-[#00ffb3]/30 text-white text-sm overflow-auto">
+              <div className="flex items-center justify-between">
+                <label className="text-lg font-semibold text-[#00ffb3]">Output:</label>
+                <button
+                  onClick={() => navigator.clipboard.writeText(output)}
+                  className="px-3 py-1 text-xs bg-[#00ffb3]/20 text-[#00ffb3] rounded border border-[#00ffb3]/30 hover:bg-[#00ffb3]/30 transition-colors"
+                  title="Copy output to clipboard"
+                  disabled={!output}
+                >
+                  Copy Output
+                </button>
+              </div>
+              <pre className="min-h-[200px] lg:h-[calc(100%-40px)] bg-[#1a1a1a] p-6 rounded-lg border border-[#00ffb3]/30 text-white text-sm overflow-auto font-mono whitespace-pre-wrap">
                 {output || "Output will appear here..."}
               </pre>
             </div>
           </div>
+
           {/* Footer */}
           <footer className="absolute bottom-0 left-0 right-0 p-6 flex flex-wrap gap-6 items-center justify-center border-t border-[#00ffb3]/20 text-[#00ffb3]">
             <a href="https://nextjs.org/learn" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
