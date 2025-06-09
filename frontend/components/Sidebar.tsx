@@ -61,8 +61,8 @@ export default function Sidebar() {
               ? "w-64"
               : "w-0 overflow-hidden"
             : collapsed
-            ? "w-16"
-            : "w-64"
+              ? "w-16"
+              : "w-64"
           }
         `}
       >

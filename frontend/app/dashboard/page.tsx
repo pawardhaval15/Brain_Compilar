@@ -146,7 +146,6 @@ export default function Home() {
               </pre>
             </div>
           </div>
-
           {/* Footer */}
           <footer className="absolute bottom-0 left-0 right-0 p-6 flex flex-wrap gap-6 items-center justify-center border-t border-[#00ffb3]/20 text-[#00ffb3]">
             <a href="https://nextjs.org/learn" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
